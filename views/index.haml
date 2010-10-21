@@ -1,0 +1,13 @@
+%h1.site
+  = "minecraft.net #{@main.to_s}"
+
+%h1.site
+  = "minecraftwiki.net #{@wiki.to_s}"
+
+%h1.site
+  = "minecraftforum.net #{@forums.to_s}"
+
+%br
+
+.time-span
+  = "#{@last.strftime("Last checked at %I:%M:%S%p")} <br /> #{(@last + 300).strftime("Next check at %I:%M:%S%p")} <br /> #{Time.now.strftime("It is %I:%M:%S%p")}"
