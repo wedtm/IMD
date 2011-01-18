@@ -3,6 +3,7 @@ require 'sinatra'
 require 'haml'
 require 'net/http'
 require 'json'
+require 'sass'
 
 configure do
   require 'memcached'
