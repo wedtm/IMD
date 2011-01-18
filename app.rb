@@ -17,7 +17,11 @@ end
 
 get '/status.json' do
   @now = Time.now
-  if((CACHE.get('time') + 300) < @now || CACHE.get('json') == nil)
+  begin
+    if((CACHE.get('time') + 300) < @now || CACHE.get('json') == nil)
+  rescue Memcached::NotFound
+    CACHE.set('time', @now)
+  end
     CACHE.set('time', @now)
     @last = @now
     result = {}
