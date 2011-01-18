@@ -1,3 +1,4 @@
 haml
 sinatra
 memcached-northscale
+json
