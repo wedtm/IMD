@@ -17,7 +17,9 @@ end
 
 get '/status.json' do
   @now = Time.now
-    if((CACHE.get('time') + 300) < @now || CACHE.get('json') == nil)
+      if((CACHE.get('time') + 300) < @now && CACHE.get('json') !=  nil)
+        return CACHE.get('json').to_json
+      end
     CACHE.set('time', @now)
     @last = @now
     result = {}
@@ -28,9 +30,7 @@ get '/status.json' do
     result[:check_time] = @now.to_s
     result[:next_check] = CACHE.get('time') + 300
     CACHE.set('json', result)
-  else
-    CACHE.get('json').to_json
-  end
+    result.to_json
 end
 
 get '/' do
