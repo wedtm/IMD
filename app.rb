@@ -17,7 +17,6 @@ end
 
 get '/status.json' do
   @now = Time.now
-  CACHE.set('time') = @now if CACHE.get('time') == nil
     if((CACHE.get('time') + 300) < @now || CACHE.get('json') == nil)
     CACHE.set('time', @now)
     @last = @now
