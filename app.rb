@@ -2,6 +2,7 @@ require 'rubygems'
 require 'sinatra'
 require 'haml'
 require 'net/http'
+require 'json'
 
 configure do
   require 'memcached'
@@ -13,7 +14,36 @@ get '/stylesheet.css' do
   sass :stylesheet
 end
 
+get '/status.json' do
+  @now = Time.now
+  if((CACHE.get('time') + 300) < @now || CACHE.get('json') == nil)
+    CACHE.set('time', @now)
+    @last = @now
+    result = {}
+    result[:results] = {}
+    result[:results][:minecraft] = get_code("http://minecraft.net")
+    result[:results][:wiki] = get_code("http://minecraftwiki.net")
+    result[:results][:forum] = get_code("http://minecraftfourm.net")
+    result[:check_time] = @now.to_s
+    result[:next_check] = CACHE.get('time') + 300
+    CACHE.set('json', result)
+  else
+    CACHE.get('json').to_json
+  end
+end
+
 get '/' do
+  check(false)
+  haml :index 
+end
+
+
+def get_code(site)
+  res = Net::HTTP.get_response(URI.parse(site))
+  res.code
+end
+
+def check(force)
   @now = Time.now
   
   begin
@@ -23,13 +53,13 @@ get '/' do
   end
     
   
-  if((CACHE.get('time') + 300) < @now)
+  if((CACHE.get('time') + 300) < @now && force == false)
     CACHE.set('time', @now)
     @last = @now
     
     begin
-      res = Net::HTTP.get_response(URI.parse("http://minecraft.net/"))
-      if (res.code =~ /2|3\d{2}/)
+      if (get_code("http://minecraft.net") =~ /^2|3\d{2}$/)
+        puts get_code("http://minecraft.net")
         @main = "is up!"
       else
         @main = "is down, be patient."
@@ -41,9 +71,7 @@ get '/' do
     CACHE.set('main', @main)
   
     begin
-      res = Net::HTTP.get_response(URI.parse("http://www.minecraftwiki.net/ping"))
-  
-      if (res.code =~ /2|3\d{2}/)
+      if (get_code("http://minecraftwiki.net") =~ /^2|3\d{2}$/)
         @wiki = "is up!"
       else
         @wiki = "is down, be patient."
@@ -55,9 +83,7 @@ get '/' do
     CACHE.set('wiki', @wiki)
   
     begin
-      res = Net::HTTP.get_response(URI.parse("http://www.minecraftforums.net/ping"))
-    
-      if (res.code =~ /2|3\d{2}/)
+      if (get_code("http://minecraftforum.net") =~ /^2|3\d{2}$/)
         @forums = "is up!"
       else
         @forums = "is down, be patient."
@@ -72,7 +98,4 @@ get '/' do
     @wiki = CACHE.get('wiki')
     @forums = CACHE.get('forums')
   end
-  
-  haml :index
-  
 end
