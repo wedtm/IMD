@@ -40,8 +40,14 @@ end
 
 
 def get_code(site)
-  res = Net::HTTP.get_response(URI.parse(site))
-  res.code
+  Timeout::timeout(5) do
+    begin
+      res = Net::HTTP.get_response(URI.parse(site))
+      return res.code
+    rescue Exception
+      return "502"
+    end
+  end
 end
 
 def check(force)
@@ -60,7 +66,6 @@ def check(force)
     
     begin
       if (get_code("http://minecraft.net") =~ /^2|3\d{2}$/)
-        puts get_code("http://minecraft.net")
         @main = "is up!"
       else
         @main = "is down, be patient."
