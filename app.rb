@@ -27,6 +27,7 @@ get '/status.json' do
     result[:results][:minecraft] = get_code("http://minecraft.net")
     result[:results][:wiki] = get_code("http://minecraftwiki.net")
     result[:results][:forum] = get_code("http://minecraftfourm.net")
+    result[:results][:login] = get_code("https://login.minecraft.net")
     result[:check_time] = @now.to_s
     result[:next_check] = CACHE.get('time') + 300
     CACHE.set('json', result)
@@ -99,9 +100,22 @@ def check(force)
       end
     
     CACHE.set('forums', @forums)
+    
+    begin
+      if (get_code("https://login.minecraft.net") =~ /^2|3\d{2}$/)
+        @login = "is up!"
+      else
+        @login = "is down, be patient."
+      end
+    rescue Exception
+        @login = "is down, be patient."
+      end
+    
+    CACHE.set('login', @login)
   else
     @main = CACHE.get('main')
     @wiki = CACHE.get('wiki')
     @forums = CACHE.get('forums')
+    @login = CACHE.get('login')
   end
 end
