@@ -51,6 +51,18 @@ def get_code(site)
   end
 end
 
+def get_status(site)
+  begin
+    if (get_code(site) =~ /^2|3\d{2}$/)
+      return "is up!"
+    else
+      return "is down, be patient."
+    end
+  rescue Exception
+    return "is down, be patient."
+  end
+end
+
 def check(force)
   @now = Time.now
   
