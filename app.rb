@@ -51,66 +51,41 @@ def get_code(site)
   end
 end
 
+def get_status(site)
+  begin
+    if (get_code(site) =~ /^2|3\d{2}$/)
+      return "is up!"
+    else
+      return "is down, be patient."
+    end
+  rescue Exception
+    return "is down, be patient."
+  end
+end
+
 def check(force)
   @now = Time.now
-  
+
   begin
     @last = CACHE.get('time')
   rescue Memcached::NotFound
     CACHE.set('time', Time.now - 1000)
   end
-    
-  
+
   if((CACHE.get('time') + 300) < @now && force == false)
     CACHE.set('time', @now)
     @last = @now
-    
-    begin
-      if (get_code("http://minecraft.net") =~ /^2|3\d{2}$/)
-        @main = "is up!"
-      else
-        @main = "is down, be patient."
-      end
-    rescue Exception
-      @main = "is down, be patient."
-    end
-    
+
+    @main = get_status("http://minecraft.net")
     CACHE.set('main', @main)
-  
-    begin
-      if (get_code("http://minecraftwiki.net") =~ /^2|3\d{2}$/)
-        @wiki = "is up!"
-      else
-        @wiki = "is down, be patient."
-      end
-    rescue Exception
-      @wiki = "is down, be patient."
-    end
-    
+
+    @wiki = get_status("http://minecraftwiki.net")
     CACHE.set('wiki', @wiki)
-  
-    begin
-      if (get_code("http://minecraftforum.net") =~ /^2|3\d{2}$/)
-        @forums = "is up!"
-      else
-        @forums = "is down, be patient."
-      end
-    rescue Exception
-        @forums = "is down, be patient."
-      end
-    
+
+    @forums = get_status("http://minecraftforum.net")    
     CACHE.set('forums', @forums)
-    
-    begin
-      if (get_code("https://login.minecraft.net") =~ /^2|3\d{2}$/)
-        @login = "is up!"
-      else
-        @login = "is down, be patient."
-      end
-    rescue Exception
-        @login = "is down, be patient."
-      end
-    
+
+    @login = get_status("https://login.minecraft.net")
     CACHE.set('login', @login)
   else
     @main = CACHE.get('main')
