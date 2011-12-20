@@ -10,11 +10,14 @@ Installing notes
 ----------------
 
 installing on RHEL/centos:
+
     yum install memcached-devel memcached cyrus-sasl-devel cyrus-sasl
     gem install sinatra memcached rack
 
     # get memcached running (service memcached start)
     ruby app.rb # -p port
 
+License
+-------
 
 Licensed under CCPL (Creative Commons Public License).  See LICENSE
