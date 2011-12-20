@@ -28,6 +28,7 @@ get '/status.json' do
     result[:results][:wiki] = get_code("http://minecraftwiki.net")
     result[:results][:forum] = get_code("http://minecraftfourm.net")
     result[:results][:login] = get_code("https://login.minecraft.net")
+    result[:results][:session] = get_code("http://session.minecraft.net")
     result[:check_time] = @now.to_s
     result[:next_check] = CACHE.get('time') + 300
     CACHE.set('json', result)
@@ -87,10 +88,15 @@ def check(force)
 
     @login = get_status("https://login.minecraft.net")
     CACHE.set('login', @login)
+
+    @session = get_status("http://session.minecraft.net")
+    CACHE.set('session', @session)
+
   else
     @main = CACHE.get('main')
     @wiki = CACHE.get('wiki')
     @forums = CACHE.get('forums')
     @login = CACHE.get('login')
+    @session = CACHE.get('session')
   end
 end
